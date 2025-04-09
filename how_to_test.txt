@@ -1,0 +1,21 @@
+Generate token: (POST)
+    URL: http://127.0.0.1:8000/api/token/
+    Header: {Content-Type: application/json}
+    sample Json: {"username":"darshan.p", "password":"Inventory@123$"}
+
+Manage stock: (POST)
+    URL: http://127.0.0.1:8000/api/products/1/adjust_stock/
+
+    Header: {"Authorization": "Bearer"+ token,
+             "Content-Type": "application/json"}
+
+    sample Json: {"quantity_change": 10, "change_type": "add", "reason": "New stock received"}
+
+
+
+Get Products: (GET)
+
+    http://127.0.0.1:8000/api/products/
+
+    Header: {"Authorization": "Bearer"+ token}
+
