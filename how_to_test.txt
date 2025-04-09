@@ -1,3 +1,8 @@
+sample dmin user: {"username":"darshan.p", "password":"Inventory@123$"}
+
+sample normal user: {"username":"normal.user", "password":"Test@123$"}
+
+
 Generate token: (POST)
     URL: http://127.0.0.1:8000/api/token/
     Header: {Content-Type: application/json}

@@ -30,6 +30,12 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def adjust_stock(self, request, pk=None):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'Only admin users can adjust stock'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         product = self.get_object()
         quantity_change = request.data.get('quantity_change')
         change_type = request.data.get('change_type')
@@ -80,6 +86,11 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def inventory_value(self, request):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'Only admin users can view inventory value'},
+                status=status.HTTP_403_FORBIDDEN
+            )
         total_value = Product.objects.aggregate(
             total=Sum(F('quantity') * F('price'))
         )['total'] or 0
