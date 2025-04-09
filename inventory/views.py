@@ -13,6 +13,30 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'Only admin users can create products'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'Only admin users can update products'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'Only admin users can delete products'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().destroy(request, *args, **kwargs)
+
     def get_queryset(self):
         queryset = Product.objects.all()
         category = self.request.query_params.get('category', None)

@@ -1,4 +1,4 @@
-sample dmin user: {"username":"darshan.p", "password":"Inventory@123$"}
+sample admin user: {"username":"darshan.p", "password":"Inventory@123$"}
 
 sample normal user: {"username":"normal.user", "password":"Test@123$"}
 
@@ -19,8 +19,42 @@ Manage stock: (POST)
 
 
 Get Products: (GET)
-
     http://127.0.0.1:8000/api/products/
-
     Header: {"Authorization": "Bearer"+ token}
 
+
+Create Product : (POST)
+    http://127.0.0.1:8000/api/products/
+
+    Header:{"Authorization": "Bearer"+ token,
+             "Content-Type": "application/json"}
+    Json: {
+        "name": "Python learning",
+        "sku": "BK-001",
+        "price": 99.99,
+        "quantity": 50,
+        "description": "",
+  		"catogary": 3,
+  		"supplier": 3
+    }
+
+Update product: (PUT)
+
+    http://127.0.0.1:8000/api/products/1/
+
+    Header:{"Authorization": "Bearer"+ token,
+             "Content-Type": "application/json"}
+    Json: {
+        "name": "Python learning",
+        "sku": "BK-001",
+        "price": 99.99,
+        "quantity": 50,
+        "description": "",
+  		"catogary": 3,
+  		"supplier": 3
+    }
+
+
+Delete product: (DELETE)
+    http://127.0.0.1:8000/api/products/1/
+    Header: {"Authorization": "Bearer"+ token}
