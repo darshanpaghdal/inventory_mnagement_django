@@ -1,0 +1,35 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block content %}
+    {% if low_stock_products %}
+    <div class="alert alert-warning" style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; margin-bottom: 20px;">
+        <h4>⚠️ Low Stock Alert</h4>
+        <p>The following products are running low on stock:</p>
+        <table style="width: 100%; margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Product</th>
+                    <th style="text-align: left;">SKU</th>
+                    <th style="text-align: right;">Current Stock</th>
+                    <th style="text-align: right;">Threshold</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in low_stock_products %}
+                <tr>
+                    <td>
+                        <a href="/admin/inventory/product/{{ product.id }}/change/">{{ product.name }}</a>
+                    </td>
+                    <td>{{ product.sku }}</td>
+                    <td style="text-align: right; color: red;">{{ product.quantity }}</td>
+                    <td style="text-align: right;">{{ product.low_stock_threshold }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %} 

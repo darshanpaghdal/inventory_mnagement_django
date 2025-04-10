@@ -130,6 +130,61 @@ class ProductViewSet(viewsets.ModelViewSet):
             'alerts': serializer.data
         })
 
+    @action(detail=False)
+    def report(self, request):
+        """Generate inventory report"""
+        if not request.user.is_staff:
+            return Response(
+                {'error': 'Only admin users can view reports'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Get filter parameters
+        category = request.query_params.get('category')
+        supplier = request.query_params.get('supplier')
+        stock_level = request.query_params.get('stock_level')  # 'low', 'normal', or None
+        sort_by = request.query_params.get('sort_by', 'quantity')  # 'quantity' or 'value'
+        sort_order = request.query_params.get('sort_order', 'asc')  # 'asc' or 'desc'
+
+        # Base queryset
+        queryset = Product.objects.all()
+
+        # Apply filters
+        if category:
+            queryset = queryset.filter(category__name=category)
+        if supplier:
+            queryset = queryset.filter(supplier__name=supplier)
+        if stock_level == 'low':
+            queryset = queryset.filter(quantity__lte=F('low_stock_threshold'))
+        elif stock_level == 'normal':
+            queryset = queryset.filter(quantity__gt=F('low_stock_threshold'))
+
+        # Calculate total inventory value
+        total_value = queryset.aggregate(
+            total=Sum(F('quantity') * F('price'))
+        )['total'] or 0
+
+        # Apply sorting
+        if sort_by == 'quantity':
+            order_field = 'quantity'
+        else:  # value
+            order_field = F('quantity') * F('price')
+        
+        if sort_order == 'desc':
+            order_field = order_field.desc()
+        
+        queryset = queryset.order_by(order_field)
+
+        # Serialize the results
+        serializer = ProductSerializer(queryset, many=True)
+
+        return Response({
+            'total_inventory_value': total_value,
+            'product_count': queryset.count(),
+            'low_stock_count': queryset.filter(quantity__lte=F('low_stock_threshold')).count(),
+            'products': serializer.data
+        })
+
 class StockLogViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = StockLog.objects.all()
     serializer_class = StockLogSerializer

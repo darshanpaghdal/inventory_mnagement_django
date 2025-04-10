@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="module">
+    <h2>Inventory Reports</h2>
+    
+    <div class="report-section" style="margin-bottom: 20px;">
+        <h3>Total Inventory Value</h3>
+        <p style="font-size: 24px; color: #2e6c80;">${{ total_inventory_value|floatformat:2 }}</p>
+    </div>
+
+    <div class="report-section">
+        <h3>All Products</h3>
+        <div style="margin-bottom: 10px;">
+            <div style="margin-bottom: 10px;">
+                <strong>Sort by:</strong>
+                <a href="?sort=quantity_asc{% if category %}&category={{ category }}{% endif %}{% if supplier %}&supplier={{ supplier }}{% endif %}{% if stock_level %}&stock_level={{ stock_level }}{% endif %}" class="button">Quantity (Asc)</a>
+                <a href="?sort=quantity_desc{% if category %}&category={{ category }}{% endif %}{% if supplier %}&supplier={{ supplier }}{% endif %}{% if stock_level %}&stock_level={{ stock_level }}{% endif %}" class="button">Quantity (Desc)</a>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <strong>Filter by:</strong>
+                <form method="get" style="display: inline;">
+                    <select name="category" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.name }}" {% if category == cat.name %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <select name="supplier" onchange="this.form.submit()">
+                        <option value="">All Suppliers</option>
+                        {% for sup in suppliers %}
+                        <option value="{{ sup.name }}" {% if supplier == sup.name %}selected{% endif %}>{{ sup.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <select name="stock_level" onchange="this.form.submit()">
+                        <option value="">All Stock Levels</option>
+                        <option value="low" {% if stock_level == 'low' %}selected{% endif %}>Low Stock</option>
+                        <option value="normal" {% if stock_level == 'normal' %}selected{% endif %}>Normal Stock</option>
+                    </select>
+                    
+                    {% if category or supplier or stock_level %}
+                    <a href="?" class="button">Clear Filters</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total Value</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in all_products %}
+                <tr>
+                    <td>
+                        <a href="{% url 'admin:inventory_product_change' product.id %}">
+                            {{ product.name }}
+                        </a>
+                    </td>
+                    <td>{{ product.category.name }}</td>
+                    <td>{{ product.quantity }}</td>
+                    <td>${{ product.price|floatformat:2 }}</td>
+                    <td>${{ product.total_value|floatformat:2 }}</td>
+                    <td>
+                        {% if product.is_low_stock %}
+                        <span style="color: red;">Low Stock</span>
+                        {% else %}
+                        <span style="color: green;">Normal</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 
