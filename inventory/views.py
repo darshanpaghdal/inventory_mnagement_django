@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Sum, F
 from .models import Product, StockLog
-from .serializers import ProductSerializer, StockLogSerializer
+from .serializers import ProductSerializer, StockLogSerializer, StockAlertSerializer
 
 # Create your views here.
 
@@ -119,6 +119,16 @@ class ProductViewSet(viewsets.ModelViewSet):
             total=Sum(F('quantity') * F('price'))
         )['total'] or 0
         return Response({'total_inventory_value': total_value})
+
+    @action(detail=False)
+    def stock_alerts(self, request):
+        """Get all products with low stock"""
+        low_stock_products = Product.objects.filter(quantity__lte=F('low_stock_threshold'))
+        serializer = StockAlertSerializer(low_stock_products, many=True)
+        return Response({
+            'count': low_stock_products.count(),
+            'alerts': serializer.data
+        })
 
 class StockLogViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = StockLog.objects.all()

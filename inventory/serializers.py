@@ -29,4 +29,18 @@ class StockLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockLog
         fields = '__all__'
-        read_only_fields = ('created_at', 'created_by') 
+        read_only_fields = ('created_at', 'created_by')
+
+class StockAlertSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+    stock_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'sku', 'quantity', 'low_stock_threshold', 
+                 'category_name', 'supplier_name', 'stock_status']
+        read_only = True
+
+    def get_stock_status(self, obj):
+        return 'Low Stock' if obj.is_low_stock else 'Normal' 
